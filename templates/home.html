@@ -99,7 +99,9 @@
                 {% endfor %}
                 {% endif %}
             </table>
-
+            <a style="text-decoration: none;max-width: 300px;" href="/da">
+                <button style="margin: 30px" type="button" class="btn btn-danger">Delete Attendance</button>
+            </a>
         </div>
 
         <div class="col"
@@ -120,9 +122,14 @@
                 <button style="width: 232px;margin-top: 20px;font-size: 20px;" type='submit' class='btn btn-dark'>Add
                     New Student
                 </button>
+                <a style="text-decoration: none;max-width: 300px;" href="/ds">
+                    <button style="margin: 20px 0px 0px 30px" type="button" class="btn btn-danger">Delete Students</button>
+                </a>
                 <br>
                 <h5 style="padding: 25px;"><i>Total Student Details in Database: {{totalreg}}</i></h5>
+
             </form>
+
         </div>
 
     </div>

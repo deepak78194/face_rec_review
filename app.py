@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
 import joblib
+import shutil
 
 #### Defining Flask App
 app = Flask(__name__)
@@ -27,6 +28,7 @@ if not os.path.isdir('static/faces'):
 if f'Attendance-{datetoday}.csv' not in os.listdir('Attendance'):
     with open(f'Attendance/Attendance-{datetoday}.csv', 'w') as f:
         f.write('Name,Roll,Time')
+        f.close()
 
 
 #### get a number of total registered users
@@ -74,6 +76,25 @@ def extract_attendance():
     return names, rolls, times, l
 
 
+#### Delete Attendance of a particular day
+def delete_attendance():
+    with open(f'Attendance/Attendance-{datetoday}.csv', 'w') as f:
+        f.truncate()
+        f.write('Name,Roll,Time')
+        f.close()
+
+#### Delete All face data
+def delete_all_face():
+    root1 = "static"
+    root2 = "faces"
+    root_dir = f"{root1}\{root2}"
+    for dir_name in os.listdir(root_dir):
+        path = f"{root_dir}\{dir_name}"
+        shutil.rmtree(path, ignore_errors=True)
+    with open(f'static/face_recognition_model.pkl', 'wb') as f:
+        f.truncate()
+        f.close()
+
 #### Add Attendance of a specific user
 def add_attendance(name):
     username = name.split('_')[0]
@@ -100,9 +121,10 @@ def home():
 @app.route('/start', methods=['GET'])
 def start():
     if 'face_recognition_model.pkl' not in os.listdir('static'):
-        return render_template('home.html', totalreg=totalreg(), datetoday2=datetoday2,
-                               mess='There is no trained model in the static folder. Please add a new face to continue.')
-
+        return redirect('/')
+    #    return render_template('home.html', totalreg=totalreg(), datetoday2=datetoday2, mess='There is no trained model in the static folder. Please add a new face to continue.')
+    if totalreg() == 0:
+        return redirect('/')
     cap = cv2.VideoCapture(0)
     ret = True
     while ret:
@@ -122,8 +144,16 @@ def start():
     cv2.destroyAllWindows()
     names, rolls, times, l = extract_attendance()
     return redirect('/')
-
-
+#### This function will delete data of particular day CSV attendance file
+@app.route('/da', methods=['GET'])
+def remove_attendance_details():
+    delete_attendance()
+    return redirect('/')
+#### This function will delete all student face images
+@app.route('/ds', methods=['GET'])
+def remove_student_images():
+    delete_all_face()
+    return redirect('/')
 #### This function will run when we add a new user
 @app.route('/add', methods=['GET', 'POST'])
 def add():
